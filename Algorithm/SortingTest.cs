@@ -9,34 +9,48 @@ namespace Algorithm
 {
     public class SortingTest
     {
+        public enum SortingOrder { NotSorted, Ascending, Descending }
+
         public static void Main(string[] args)
         {
             List<ISortingAlgorithm> Algorithms = new List<ISortingAlgorithm>()
             {
-                new SelectionSort(),
+                //new SelectionSort(),
+                //new BubbleSort(),
+                //new InsertionSort(),
+                //new MergeSort(),
+                //new QuickSort(),
+                //new HeapSort(),
+                //new RadixSort(),
+                new CountingSort(),
             };
 
             const int TEST_SIZE = 10000;
             foreach (var algorithm in Algorithms)
             {
-                TestSortingAlgorithm(algorithm, TEST_SIZE);
+                TestSortingAlgorithm(algorithm, TEST_SIZE, 10);
             }
+
+            Console.ReadKey();
         }
 
-        private static void TestSortingAlgorithm(ISortingAlgorithm algorithm, int maxArraySize)
+        private static void TestSortingAlgorithm(ISortingAlgorithm algorithm, int maxArraySize, int numberOfTest)
         {
             Stopwatch stopwatch = new Stopwatch();
 
-            for (int n = 10; n <= maxArraySize; n *= 10)
+            for (int arraySize = 10; arraySize <= maxArraySize; arraySize *= 10)
             {
-                int[] array = GenerateRandomArray(n);
+                for (int n = 0; n <= numberOfTest; n++)
+                {
+                    int[] array = GenerateRandomArray(arraySize);
 
-                stopwatch.Start();
-                algorithm.Sort(array);
-                stopwatch.Stop();
+                    stopwatch.Start();
+                    algorithm.Sort(array);
+                    stopwatch.Stop();
 
-                Console.WriteLine(string.Format("'{0}', IsSorted: '{1}', ElapsedTime: '{2}', N: '{3}'", algorithm.GetType().Name, IsSorted(array), stopwatch.Elapsed, array.Length));
-                stopwatch.Reset();
+                    Console.WriteLine(string.Format("'{0}', SortingBy: '{1}', ElapsedTime: '{2}', N: '{3}'", algorithm.GetType().Name, SortingBy(array), stopwatch.Elapsed, array.Length));
+                    stopwatch.Reset();
+                }
             }
         }
 
@@ -48,28 +62,51 @@ namespace Algorithm
 
             for (int index = 0; index < newArray.Length; index++)
             {
-                newArray[index] = random.Next();
+                newArray[index] = random.Next(10);
             }
 
             return newArray;
         }
 
-        private static bool IsSorted(int[] array)
+        private static SortingOrder SortingBy(int[] array)
         {
+            bool ascending = true;
+            bool descending = true;
+
             if (array.Length <= 1)
             {
-                return true;
+                return SortingOrder.NotSorted;
             }
 
             for (int index = 1; index < array.Length; index++)
             {
                 if (array[index - 1] > array[index])
                 {
-                    return false;
+                    ascending = false;
+                    break;
                 }
             }
 
-            return true;
+            if (ascending == true)
+            {
+                return SortingOrder.Ascending;
+            }
+
+            for (int index = 1; index < array.Length; index++)
+            {
+                if (array[index - 1] < array[index])
+                {
+                    descending = false;
+                    break;
+                }
+            }
+
+            if (descending == true)
+            {
+                return SortingOrder.Descending;
+            }
+
+            return SortingOrder.NotSorted;
         }
     }
 }
